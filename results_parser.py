@@ -13,3 +13,5 @@ df = pd.DataFrame(results).T
 #%%
 sns.barplot(x=df.index, y='auc', data=df)
 # %%
+df
+# %%

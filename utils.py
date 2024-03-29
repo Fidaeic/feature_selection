@@ -9,6 +9,7 @@ from sklearn.linear_model import LogisticRegression
 
 from sklearn.model_selection import cross_val_score
 from sklearn.cross_decomposition import PLSRegression
+from sklearn.preprocessing import StandardScaler
 import numpy as np
 
 def stepwise_forward_regression(X, y):
@@ -67,3 +68,14 @@ def pls_cross_validation(X, y, component_range):
     vips = compute_vip(pls_optimal)
 
     return optimal_components, vips
+
+def simulate_data(n, p, intercept, meaningful_features=5):
+    
+    beta = np.zeros(p)
+    beta[:meaningful_features] = np.random.uniform(0.5, 2, meaningful_features)
+    var_names = ['V{:02d}'.format(i) for i in range(1, 101)]
+    X = pd.DataFrame(np.random.normal(size=(n, p)), columns= var_names)
+
+    X_standardized = StandardScaler().fit_transform(X)
+    y = np.random.binomial(1, 1/(1 + np.exp(-X_standardized @ beta-intercept)))
+    return X, y, beta, var_names
