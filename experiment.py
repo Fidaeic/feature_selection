@@ -16,9 +16,9 @@ n = 10000
 p = 100
 X = pd.DataFrame(np.random.normal(size=(n, p)), columns=['V'+str(i) for i in range(p)])
 beta = np.zeros(p)
-beta[:10] = 1
+beta[:10] = np.random.uniform(0.5, 1, 10)
 # Generate the dependent using an inverse logit function and round to the closest integer
-y_prob = 1 / (1 + np.exp(-X.dot(beta)))
+y_prob = 1 / (1 + np.exp(-X.dot(beta)+2))
 y = np.random.binomial(1, y_prob)
 
 real_auc = roc_auc_score(y, y_prob)
@@ -48,12 +48,12 @@ print("Coefficients", stepwise_lr.coef_)
 print("Intercept", stepwise_lr.intercept_)
 #%%
 # Fit the model with L1 regularization
-model = LogisticRegression(penalty='l1', l1_ratio=.7,solver='liblinear')
-model.fit(X_train, y_train)
+l1_lr = LogisticRegression(penalty='l1', l1_ratio=.1,solver='liblinear')
+l1_lr.fit(X_train, y_train)
 
 # Print the coefficients
-print(model.coef_)
-print(model.intercept_)
+print(l1_lr.coef_)
+print(l1_lr.intercept_)
 # %%
 comps, vips = pls_cross_validation(X_train, y_train, range(1, 10))
 
@@ -76,9 +76,10 @@ print("Intercept", pls_lr.intercept_)
 
 results = {
     "simulated":{
-        "real_auc": real_auc,
-        "n_variables": p,
+        "auc": real_auc,
+        "n_features": p,
         "n_observations": n,
+        "coefficients": beta.tolist()
     },
     "base_lr": {
         "coefficients": base_lr.coef_.tolist(),
